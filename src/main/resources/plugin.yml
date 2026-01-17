@@ -1,0 +1,13 @@
+name: OutfitsPlus
+version: '1.0.0'
+main: dev.harsh.plugin.outfitsplus.OutfitsPlus
+api-version: '1.21'
+authors: [ Harsh ]
+description: Premium wearable cosmetics and outfit customization system for players, featuring hats, wings, clothing pieces, and visual accessories.
+softdepend:
+  - ProtocolLib
+  - ProtocolSupport
+  - ViaVersion
+  - ViaBackwards
+  - ViaRewind
+  - Geyser-Spigot
