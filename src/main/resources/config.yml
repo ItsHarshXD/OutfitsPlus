@@ -33,13 +33,3 @@ debug: false
 defaults:
   show-own-cosmetics: true
   show-others-cosmetics: true
-
-# Integration settings
-integrations:
-  # ItemsAdder integration (future)
-  itemsadder:
-    enabled: false
-
-  # Nexo integration (future)
-  nexo:
-    enabled: false

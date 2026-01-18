@@ -24,9 +24,6 @@ public final class ItemBuilder {
         this.itemMeta = this.itemStack.getItemMeta();
     }
 
-    /**
-     * Sets the display name using a Component (preferred for modern Paper).
-     */
     public ItemBuilder name(Component name) {
         if (itemMeta != null) {
             itemMeta.displayName(name);
@@ -34,10 +31,6 @@ public final class ItemBuilder {
         return this;
     }
 
-    /**
-     * Sets the display name from a raw string with color codes.
-     * Uses ColorUtil.processToComponent() for proper formatting.
-     */
     public ItemBuilder name(String name) {
         if (itemMeta != null) {
             itemMeta.displayName(ColorUtil.processToComponent(name));
@@ -45,9 +38,6 @@ public final class ItemBuilder {
         return this;
     }
 
-    /**
-     * Sets the lore using Components (preferred for modern Paper).
-     */
     public ItemBuilder lore(List<Component> lore) {
         if (itemMeta != null) {
             itemMeta.lore(lore);
@@ -55,10 +45,6 @@ public final class ItemBuilder {
         return this;
     }
 
-    /**
-     * Sets the lore from raw strings with color codes.
-     * Uses ColorUtil.processToComponents() for proper formatting.
-     */
     public ItemBuilder loreStrings(List<String> lore) {
         if (itemMeta != null) {
             itemMeta.lore(ColorUtil.processToComponents(lore));
@@ -66,9 +52,6 @@ public final class ItemBuilder {
         return this;
     }
 
-    /**
-     * Sets the lore from raw strings with color codes.
-     */
     public ItemBuilder loreStrings(String... lore) {
         if (itemMeta != null) {
             itemMeta.lore(ColorUtil.processToComponents(List.of(lore)));

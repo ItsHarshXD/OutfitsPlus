@@ -31,7 +31,6 @@ public final class YamlStorageProvider implements StorageProvider {
 
     @Override
     public void shutdown() {
-        // Nothing to cleanup for file-based storage
     }
 
     @Override
@@ -45,7 +44,6 @@ public final class YamlStorageProvider implements StorageProvider {
             YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
             PlayerData data = new PlayerData(playerId);
 
-            // Load equipped cosmetics
             if (yaml.contains("equipped")) {
                 for (String categoryName : yaml.getConfigurationSection("equipped").getKeys(false)) {
                     CosmeticCategory.fromString(categoryName).ifPresent(category -> {
@@ -57,17 +55,13 @@ public final class YamlStorageProvider implements StorageProvider {
                 }
             }
 
-            // Load unlocked cosmetics
             List<String> unlocked = yaml.getStringList("unlocked");
             for (String cosmeticId : unlocked) {
                 data.unlock(cosmeticId);
             }
 
-            // Load visibility settings
             data.getVisibility().setShowOwnCosmetics(yaml.getBoolean("visibility.own", true));
             data.getVisibility().setShowOthersCosmetics(yaml.getBoolean("visibility.others", true));
-
-            // Load locale
             data.setLocale(yaml.getString("locale", "en"));
 
             data.markClean();
@@ -88,19 +82,13 @@ public final class YamlStorageProvider implements StorageProvider {
         File file = getPlayerFile(data.getPlayerId());
         YamlConfiguration yaml = new YamlConfiguration();
 
-        // Save equipped cosmetics
         for (Map.Entry<CosmeticCategory, String> entry : data.getAllEquipped().entrySet()) {
             yaml.set("equipped." + entry.getKey().name().toLowerCase(), entry.getValue());
         }
 
-        // Save unlocked cosmetics
         yaml.set("unlocked", new ArrayList<>(data.getUnlockedCosmetics()));
-
-        // Save visibility settings
         yaml.set("visibility.own", data.getVisibility().isShowOwnCosmetics());
         yaml.set("visibility.others", data.getVisibility().isShowOthersCosmetics());
-
-        // Save locale
         yaml.set("locale", data.getLocale());
 
         try {

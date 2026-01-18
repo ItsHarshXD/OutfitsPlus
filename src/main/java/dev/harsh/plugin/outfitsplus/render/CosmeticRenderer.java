@@ -31,11 +31,6 @@ public final class CosmeticRenderer {
         slotRenderers.put(EquipmentSlot.FEET, new FeetSlotRenderer(registry));
     }
 
-    /**
-     * Gets the cosmetic item to display for a given equipment slot, if any.
-     * Returns the cosmetic item if one should be shown, or empty if the real
-     * equipment should be used.
-     */
     public Optional<ItemStack> getCosmeticForSlot(RenderContext context, EquipmentSlot slot, PlayerData targetData) {
         if (targetData == null || !targetData.hasAnythingEquipped()) {
             return Optional.empty();
@@ -50,11 +45,7 @@ public final class CosmeticRenderer {
     }
 
     /**
-     * Builds a map of equipment slots to the items that should be displayed for a
-     * target player,
-     * considering both cosmetics and visibility settings.
-     * Returns only slots that should show cosmetics (empty slots with cosmetics
-     * equipped).
+     * Builds equipment map with cosmetics only (for empty slots).
      */
     public Map<EquipmentSlot, ItemStack> buildCosmeticEquipment(UUID viewerId, Player target) {
         UUID targetId = target.getUniqueId();
@@ -76,7 +67,6 @@ public final class CosmeticRenderer {
                 EquipmentSlot.FEET }) {
             ItemStack realItem = target.getInventory().getItem(slot);
 
-            // Only show cosmetics if the slot is empty (no real armor)
             if (realItem == null || realItem.getType().isAir()) {
                 getCosmeticForSlot(context, slot, targetData).ifPresent(cosmeticItem -> {
                     equipment.put(slot, cosmeticItem);
@@ -88,9 +78,7 @@ public final class CosmeticRenderer {
     }
 
     /**
-     * Builds a map of ALL equipment for a target player as other viewers should see
-     * them.
-     * Includes both real equipment and cosmetics where applicable.
+     * Builds full equipment map (real items + cosmetics for empty slots).
      */
     public Map<EquipmentSlot, ItemStack> buildFullEquipment(UUID viewerId, Player target) {
         UUID targetId = target.getUniqueId();
@@ -104,7 +92,6 @@ public final class CosmeticRenderer {
                 EquipmentSlot.FEET }) {
             ItemStack realItem = target.getInventory().getItem(slot);
 
-            // Check if we should show a cosmetic in this slot
             if ((realItem == null || realItem.getType().isAir()) && targetData != null
                     && targetData.hasAnythingEquipped()) {
                 if (viewerData == null || viewerData.getVisibility().canSee(viewerId, targetId)) {
@@ -116,7 +103,6 @@ public final class CosmeticRenderer {
                 }
             }
 
-            // Use the real item (or air if null)
             equipment.put(slot, realItem != null ? realItem : new ItemStack(org.bukkit.Material.AIR));
         }
 
