@@ -1,6 +1,8 @@
 id: example_pants
-display-name: "cosmetic.pants.example_pants.name"
-description: "cosmetic.pants.example_pants.description"
+display-name: "&6Example Pants"
+lore:
+  - "&7Comfortable example pants cosmetic."
+  - "&7Walk in style!"
 material: "LEATHER_LEGGINGS"
 custom-model-data: 10005
 permission: null

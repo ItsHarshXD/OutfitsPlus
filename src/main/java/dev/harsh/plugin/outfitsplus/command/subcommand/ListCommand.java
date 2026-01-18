@@ -8,6 +8,7 @@ import dev.harsh.plugin.outfitsplus.locale.LocaleManager;
 import dev.harsh.plugin.outfitsplus.locale.MessageKey;
 import dev.harsh.plugin.outfitsplus.player.PlayerData;
 import dev.harsh.plugin.outfitsplus.player.PlayerDataCache;
+import dev.harsh.plugin.outfitsplus.util.ColorUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -84,11 +85,11 @@ public final class ListCommand implements SubCommand {
             List<Cosmetic> cosmetics = registry.getByCategory(category);
             if (!cosmetics.isEmpty()) {
                 hasAny = true;
-                sender.sendMessage("§6" + category.name() + ":");
+                sender.sendMessage(ColorUtil.processToComponent("&6" + category.name() + ":"));
                 for (Cosmetic cosmetic : cosmetics) {
                     sendCosmeticLine(sender, player, data, cosmetic);
                 }
-                sender.sendMessage("");
+                sender.sendMessage(ColorUtil.processToComponent(""));
             }
         }
 

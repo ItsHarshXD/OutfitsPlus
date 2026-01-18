@@ -1,6 +1,8 @@
 id: example_shoes
-display-name: "cosmetic.shoes.example_shoes.name"
-description: "cosmetic.shoes.example_shoes.description"
+display-name: "&6Example Shoes"
+lore:
+  - "&7Trendy example shoes cosmetic."
+  - "&7Step up your game!"
 material: "LEATHER_BOOTS"
 custom-model-data: 10006
 permission: null

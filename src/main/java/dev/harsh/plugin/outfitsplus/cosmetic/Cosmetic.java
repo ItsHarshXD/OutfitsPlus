@@ -2,22 +2,22 @@ package dev.harsh.plugin.outfitsplus.cosmetic;
 
 import org.bukkit.Material;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public record Cosmetic(
         String id,
         CosmeticCategory category,
-        String displayNameKey,
-        String descriptionKey,
+        String displayName,
+        List<String> lore,
         Material baseMaterial,
         int customModelData,
         Optional<MaskType> maskType,
         String permission,
         boolean defaultUnlocked,
         int priority,
-        Map<String, Object> metadata
-) {
+        Map<String, Object> metadata) {
 
     public String getEffectivePermission() {
         if (permission != null && !permission.isEmpty()) {
@@ -54,9 +54,9 @@ public record Cosmetic(
     public static class Builder {
         private String id;
         private CosmeticCategory category;
-        private String displayNameKey;
-        private String descriptionKey;
-        private Material baseMaterial = Material.LEATHER_HELMET;
+        private String displayName;
+        private List<String> lore = List.of();
+        private Material baseMaterial = null;
         private int customModelData = 0;
         private MaskType maskType;
         private String permission;
@@ -74,13 +74,13 @@ public record Cosmetic(
             return this;
         }
 
-        public Builder displayNameKey(String displayNameKey) {
-            this.displayNameKey = displayNameKey;
+        public Builder displayName(String displayName) {
+            this.displayName = displayName;
             return this;
         }
 
-        public Builder descriptionKey(String descriptionKey) {
-            this.descriptionKey = descriptionKey;
+        public Builder lore(List<String> lore) {
+            this.lore = lore != null ? lore : List.of();
             return this;
         }
 
@@ -127,26 +127,25 @@ public record Cosmetic(
                 throw new IllegalStateException("Cosmetic category is required");
             }
 
-            if (displayNameKey == null) {
-                displayNameKey = "cosmetic." + category.getConfigFolder() + "." + id + ".name";
+            if (displayName == null) {
+                displayName = id;
             }
-            if (descriptionKey == null) {
-                descriptionKey = "cosmetic." + category.getConfigFolder() + "." + id + ".description";
+            if (baseMaterial == null) {
+                baseMaterial = category.getDefaultMaterial();
             }
 
             return new Cosmetic(
                     id,
                     category,
-                    displayNameKey,
-                    descriptionKey,
+                    displayName,
+                    lore,
                     baseMaterial,
                     customModelData,
                     Optional.ofNullable(maskType),
                     permission,
                     defaultUnlocked,
                     priority,
-                    metadata
-            );
+                    metadata);
         }
     }
 }

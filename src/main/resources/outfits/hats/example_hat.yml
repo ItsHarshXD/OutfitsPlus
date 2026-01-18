@@ -1,6 +1,8 @@
 id: example_hat
-display-name: "cosmetic.hats.example_hat.name"
-description: "cosmetic.hats.example_hat.description"
+display-name: "&6Example Hat"
+lore:
+  - "&7A stylish example hat cosmetic."
+  - "&7Wear it to stand out!"
 material: "LEATHER_HELMET"
 custom-model-data: 10001
 permission: null

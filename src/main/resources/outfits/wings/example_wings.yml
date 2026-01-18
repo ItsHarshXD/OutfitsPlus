@@ -1,6 +1,8 @@
 id: example_wings
-display-name: "cosmetic.wings.example_wings.name"
-description: "cosmetic.wings.example_wings.description"
+display-name: "&6Example Wings"
+lore:
+  - "&7Majestic example wings cosmetic."
+  - "&7Soar through the skies!"
 material: "ELYTRA"
 custom-model-data: 10003
 permission: null

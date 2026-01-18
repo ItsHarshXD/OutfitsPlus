@@ -1,6 +1,8 @@
 id: example_mask
-display-name: "cosmetic.masks.example_mask.name"
-description: "cosmetic.masks.example_mask.description"
+display-name: "&6Example Mask"
+lore:
+  - "&7A mysterious example mask cosmetic."
+  - "&7Hide your identity in style!"
 material: "LEATHER_HELMET"
 custom-model-data: 10002
 mask-type: "FULL"

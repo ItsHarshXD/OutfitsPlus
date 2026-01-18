@@ -1,9 +1,5 @@
 package dev.harsh.plugin.outfitsplus.render.slot;
 
-import com.github.retrooper.packetevents.protocol.item.ItemStack;
-import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
-import com.github.retrooper.packetevents.protocol.player.Equipment;
-import com.github.retrooper.packetevents.protocol.player.EquipmentSlot;
 import dev.harsh.plugin.outfitsplus.api.event.CosmeticRenderEvent;
 import dev.harsh.plugin.outfitsplus.cosmetic.Cosmetic;
 import dev.harsh.plugin.outfitsplus.cosmetic.CosmeticCategory;
@@ -11,8 +7,10 @@ import dev.harsh.plugin.outfitsplus.cosmetic.registry.CosmeticRegistry;
 import dev.harsh.plugin.outfitsplus.player.PlayerData;
 import dev.harsh.plugin.outfitsplus.render.RenderContext;
 import dev.harsh.plugin.outfitsplus.util.ItemBuilder;
-import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -25,55 +23,49 @@ public final class ChestSlotRenderer implements SlotRenderer {
     }
 
     @Override
-    public Equipment render(RenderContext context, Equipment original, PlayerData targetData) {
-        if (original.getSlot() != EquipmentSlot.CHEST_PLATE) {
-            return original;
+    public Optional<ItemStack> renderCosmetic(RenderContext context, PlayerData targetData) {
+        Player target = Bukkit.getPlayer(context.target());
+        if (target == null) {
+            return Optional.empty();
         }
 
-        boolean hasElytra = isElytra(original.getItem());
+        ItemStack chestItem = target.getInventory().getChestplate();
+        boolean hasElytra = chestItem != null && chestItem.getType() == Material.ELYTRA;
+
+        if (hasElytra) {
+            return Optional.empty();
+        }
 
         Optional<String> wingsId = targetData.getEquipped(CosmeticCategory.WINGS);
         Optional<String> topId = targetData.getEquipped(CosmeticCategory.TOP);
 
-        if (wingsId.isPresent() && !hasElytra) {
-            return renderCosmetic(context, wingsId.get(), original);
-        } else if (topId.isPresent() && !hasElytra) {
-            return renderCosmetic(context, topId.get(), original);
+        if (wingsId.isPresent()) {
+            return tryRenderCosmetic(context, wingsId.get());
+        } else if (topId.isPresent()) {
+            return tryRenderCosmetic(context, topId.get());
         }
 
-        return original;
+        return Optional.empty();
     }
 
-    private boolean isElytra(ItemStack item) {
-        if (item == null || item.isEmpty()) {
-            return false;
-        }
-        return item.getType() == ItemTypes.ELYTRA;
-    }
-
-    private Equipment renderCosmetic(RenderContext context, String cosmeticId, Equipment original) {
+    private Optional<ItemStack> tryRenderCosmetic(RenderContext context, String cosmeticId) {
         return registry.get(cosmeticId)
-                .map(cosmetic -> {
+                .flatMap(cosmetic -> {
                     CosmeticRenderEvent event = new CosmeticRenderEvent(
                             context.viewer(),
                             context.target(),
-                            cosmetic
-                    );
+                            cosmetic);
                     Bukkit.getPluginManager().callEvent(event);
                     if (event.isCancelled()) {
-                        return original;
+                        return Optional.empty();
                     }
-                    ItemStack cosmeticItem = buildCosmeticItem(cosmetic);
-                    return new Equipment(original.getSlot(), cosmeticItem);
-                })
-                .orElse(original);
+                    return Optional.of(buildCosmeticItem(cosmetic));
+                });
     }
 
     private ItemStack buildCosmeticItem(Cosmetic cosmetic) {
-        org.bukkit.inventory.ItemStack bukkitItem = ItemBuilder.of(cosmetic.baseMaterial())
+        return ItemBuilder.of(cosmetic.baseMaterial())
                 .customModelData(cosmetic.customModelData())
                 .build();
-
-        return SpigotConversionUtil.fromBukkitItemStack(bukkitItem);
     }
 }

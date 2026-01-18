@@ -1,8 +1,5 @@
 package dev.harsh.plugin.outfitsplus;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.PacketListenerPriority;
-
 import dev.harsh.plugin.outfitsplus.api.OutfitsPlusAPI;
 import dev.harsh.plugin.outfitsplus.command.CommandManager;
 import dev.harsh.plugin.outfitsplus.config.ConfigManager;
@@ -12,14 +9,12 @@ import dev.harsh.plugin.outfitsplus.cosmetic.registry.CosmeticRegistry;
 import dev.harsh.plugin.outfitsplus.integration.IntegrationManager;
 import dev.harsh.plugin.outfitsplus.listener.*;
 import dev.harsh.plugin.outfitsplus.locale.LocaleManager;
-import dev.harsh.plugin.outfitsplus.packet.listener.EquipmentPacketListener;
 import dev.harsh.plugin.outfitsplus.packet.sender.CosmeticPacketSender;
 import dev.harsh.plugin.outfitsplus.player.PlayerDataCache;
 import dev.harsh.plugin.outfitsplus.render.CosmeticRenderer;
 import dev.harsh.plugin.outfitsplus.storage.StorageFactory;
 import dev.harsh.plugin.outfitsplus.storage.StorageProvider;
 import dev.harsh.plugin.outfitsplus.util.SchedulerUtil;
-import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,19 +42,8 @@ public final class OutfitsPlus extends JavaPlugin {
     private IntegrationManager integrationManager;
 
     @Override
-    public void onLoad() {
-        instance = this;
-
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().getSettings()
-                .reEncodeByDefault(true)
-                .checkForUpdates(false);
-        PacketEvents.getAPI().load();
-    }
-
-    @Override
     public void onEnable() {
-        PacketEvents.getAPI().init();
+        instance = this;
 
         try {
             SchedulerUtil.init(this);
@@ -98,8 +82,6 @@ public final class OutfitsPlus extends JavaPlugin {
             storageProvider.shutdown();
         }
 
-        PacketEvents.getAPI().terminate();
-
         getLogger().info("OutfitsPlus disabled.");
     }
 
@@ -130,9 +112,6 @@ public final class OutfitsPlus extends JavaPlugin {
     private void initializeRendering() {
         cosmeticRenderer = new CosmeticRenderer(cosmeticRegistry, playerCache);
         packetSender = new CosmeticPacketSender(cosmeticRenderer);
-
-        EquipmentPacketListener packetListener = new EquipmentPacketListener(cosmeticRenderer, playerCache);
-        PacketEvents.getAPI().getEventManager().registerListener(packetListener, PacketListenerPriority.NORMAL);
     }
 
     private void initializeCommands() {
@@ -164,8 +143,7 @@ public final class OutfitsPlus extends JavaPlugin {
                 cosmeticRegistry,
                 playerCache,
                 packetSender,
-                localeManager
-        );
+                localeManager);
         OutfitsPlusAPI.setInstance(api);
     }
 

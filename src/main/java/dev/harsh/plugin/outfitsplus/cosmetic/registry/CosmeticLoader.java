@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class CosmeticLoader implements ReloadManager.Reloadable {
@@ -54,15 +55,18 @@ public final class CosmeticLoader implements ReloadManager.Reloadable {
                     Cosmetic cosmetic = parseCosmetic(file, category);
                     if (registry.exists(cosmetic.id())) {
                         Cosmetic existing = registry.get(cosmetic.id()).orElse(null);
-                        String existingCategory = existing != null ? existing.category().name().toLowerCase() : "unknown";
-                        throw new Exception("Duplicate cosmetic id: " + cosmetic.id() + " (already used in " + existingCategory + ")");
+                        String existingCategory = existing != null ? existing.category().name().toLowerCase()
+                                : "unknown";
+                        throw new Exception("Duplicate cosmetic id: " + cosmetic.id() + " (already used in "
+                                + existingCategory + ")");
                     }
                     registry.register(cosmetic);
                     loaded++;
                     plugin.getLogger().fine("Loaded cosmetic: " + cosmetic.id());
                 } catch (Exception e) {
                     failed++;
-                    plugin.getLogger().warning("Failed to load cosmetic from " + file.getName() + ": " + e.getMessage());
+                    plugin.getLogger()
+                            .warning("Failed to load cosmetic from " + file.getName() + ": " + e.getMessage());
                     if (plugin.getConfigManager().isDebug()) {
                         e.printStackTrace();
                     }
@@ -98,10 +102,10 @@ public final class CosmeticLoader implements ReloadManager.Reloadable {
             id = file.getName().replace(".yml", "");
         }
 
-        String displayNameKey = yaml.getString("display-name");
-        String descriptionKey = yaml.getString("description");
+        String displayName = yaml.getString("display-name", id);
+        List<String> lore = yaml.getStringList("lore");
 
-        String materialName = yaml.getString("material", "LEATHER_HELMET");
+        String materialName = yaml.getString("material", category.getDefaultMaterial().name());
         Material material = Material.matchMaterial(materialName);
         if (material == null) {
             throw new Exception("Invalid material: " + materialName);
@@ -131,8 +135,8 @@ public final class CosmeticLoader implements ReloadManager.Reloadable {
         return Cosmetic.builder()
                 .id(id)
                 .category(category)
-                .displayNameKey(displayNameKey)
-                .descriptionKey(descriptionKey)
+                .displayName(displayName)
+                .lore(lore)
                 .baseMaterial(material)
                 .customModelData(customModelData)
                 .maskType(maskType)
@@ -153,9 +157,9 @@ public final class CosmeticLoader implements ReloadManager.Reloadable {
 
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.set("id", id);
-        yaml.set("display-name", "cosmetic." + category.getConfigFolder() + "." + id + ".name");
-        yaml.set("description", "cosmetic." + category.getConfigFolder() + "." + id + ".description");
-        yaml.set("material", "LEATHER_HELMET");
+        yaml.set("display-name", "&6" + formatIdAsName(id));
+        yaml.set("lore", List.of("&7An example " + category.name().toLowerCase() + " cosmetic."));
+        yaml.set("material", category.getDefaultMaterial().name());
         yaml.set("custom-model-data", 10001);
         yaml.set("permission", null);
         yaml.set("default-unlocked", false);
@@ -173,6 +177,10 @@ public final class CosmeticLoader implements ReloadManager.Reloadable {
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to save example cosmetic: " + e.getMessage());
         }
+    }
+
+    private String formatIdAsName(String id) {
+        return id.replace("_", " ").substring(0, 1).toUpperCase() + id.replace("_", " ").substring(1);
     }
 
     public void generateDefaultCosmetics() {

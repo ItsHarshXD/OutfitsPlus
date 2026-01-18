@@ -1,5 +1,6 @@
 package dev.harsh.plugin.outfitsplus.cosmetic;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.Arrays;
@@ -7,19 +8,21 @@ import java.util.Optional;
 
 public enum CosmeticCategory {
 
-    HAT("hats", EquipmentSlot.HEAD),
-    MASK("masks", EquipmentSlot.HEAD),
-    WINGS("wings", EquipmentSlot.CHEST),
-    TOP("tops", EquipmentSlot.CHEST),
-    PANTS("pants", EquipmentSlot.LEGS),
-    SHOES("shoes", EquipmentSlot.FEET);
+    HAT("hats", EquipmentSlot.HEAD, Material.LEATHER_HELMET),
+    MASK("masks", EquipmentSlot.HEAD, Material.LEATHER_HELMET),
+    WINGS("wings", EquipmentSlot.CHEST, Material.ELYTRA),
+    TOP("tops", EquipmentSlot.CHEST, Material.LEATHER_CHESTPLATE),
+    PANTS("pants", EquipmentSlot.LEGS, Material.LEATHER_LEGGINGS),
+    SHOES("shoes", EquipmentSlot.FEET, Material.LEATHER_BOOTS);
 
     private final String configFolder;
     private final EquipmentSlot equipmentSlot;
+    private final Material defaultMaterial;
 
-    CosmeticCategory(String configFolder, EquipmentSlot equipmentSlot) {
+    CosmeticCategory(String configFolder, EquipmentSlot equipmentSlot, Material defaultMaterial) {
         this.configFolder = configFolder;
         this.equipmentSlot = equipmentSlot;
+        this.defaultMaterial = defaultMaterial;
     }
 
     public String getConfigFolder() {
@@ -28,6 +31,10 @@ public enum CosmeticCategory {
 
     public EquipmentSlot getEquipmentSlot() {
         return equipmentSlot;
+    }
+
+    public Material getDefaultMaterial() {
+        return defaultMaterial;
     }
 
     public boolean conflictsWith(CosmeticCategory other) {

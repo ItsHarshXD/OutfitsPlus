@@ -1,6 +1,8 @@
 id: example_top
-display-name: "cosmetic.tops.example_top.name"
-description: "cosmetic.tops.example_top.description"
+display-name: "&6Example Top"
+lore:
+  - "&7A fashionable example top cosmetic."
+  - "&7Look your best!"
 material: "LEATHER_CHESTPLATE"
 custom-model-data: 10004
 permission: null

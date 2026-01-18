@@ -1,17 +1,11 @@
 package dev.harsh.plugin.outfitsplus.render;
 
-import com.github.retrooper.packetevents.protocol.player.Equipment;
-import com.github.retrooper.packetevents.protocol.player.EquipmentSlot;
-import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
-import dev.harsh.plugin.outfitsplus.cosmetic.Cosmetic;
-import dev.harsh.plugin.outfitsplus.cosmetic.CosmeticCategory;
 import dev.harsh.plugin.outfitsplus.cosmetic.registry.CosmeticRegistry;
 import dev.harsh.plugin.outfitsplus.player.PlayerData;
 import dev.harsh.plugin.outfitsplus.player.PlayerDataCache;
 import dev.harsh.plugin.outfitsplus.render.slot.*;
-import dev.harsh.plugin.outfitsplus.util.ItemBuilder;
-import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -31,157 +25,105 @@ public final class CosmeticRenderer {
     }
 
     private void registerSlotRenderers() {
-        slotRenderers.put(EquipmentSlot.HELMET, new HeadSlotRenderer(registry));
-        slotRenderers.put(EquipmentSlot.CHEST_PLATE, new ChestSlotRenderer(registry));
-        slotRenderers.put(EquipmentSlot.LEGGINGS, new LegsSlotRenderer(registry));
-        slotRenderers.put(EquipmentSlot.BOOTS, new FeetSlotRenderer(registry));
+        slotRenderers.put(EquipmentSlot.HEAD, new HeadSlotRenderer(registry));
+        slotRenderers.put(EquipmentSlot.CHEST, new ChestSlotRenderer(registry));
+        slotRenderers.put(EquipmentSlot.LEGS, new LegsSlotRenderer(registry));
+        slotRenderers.put(EquipmentSlot.FEET, new FeetSlotRenderer(registry));
     }
 
-    public List<Equipment> renderCosmetics(RenderContext context, List<Equipment> originalEquipment) {
-        PlayerData viewerData = playerCache.get(context.viewer()).orElse(null);
-        PlayerData targetData = playerCache.get(context.target()).orElse(null);
-
+    /**
+     * Gets the cosmetic item to display for a given equipment slot, if any.
+     * Returns the cosmetic item if one should be shown, or empty if the real
+     * equipment should be used.
+     */
+    public Optional<ItemStack> getCosmeticForSlot(RenderContext context, EquipmentSlot slot, PlayerData targetData) {
         if (targetData == null || !targetData.hasAnythingEquipped()) {
-            return originalEquipment;
+            return Optional.empty();
         }
 
-        if (viewerData != null && !viewerData.getVisibility().canSee(context.viewer(), context.target())) {
-            return originalEquipment;
+        SlotRenderer renderer = slotRenderers.get(slot);
+        if (renderer == null) {
+            return Optional.empty();
         }
 
-        List<Equipment> modifiedEquipment = new ArrayList<>(originalEquipment.size());
-
-        for (Equipment equipment : originalEquipment) {
-            if (equipment.getItem() != null && equipment.getItem().getType() != ItemTypes.AIR) {
-                modifiedEquipment.add(equipment);
-                continue;
-            }
-
-            EquipmentSlot slot = equipment.getSlot();
-            SlotRenderer renderer = slotRenderers.get(slot);
-
-            if (renderer != null) {
-                Equipment rendered = renderer.render(context, equipment, targetData);
-                modifiedEquipment.add(rendered);
-            } else {
-                modifiedEquipment.add(equipment);
-            }
-        }
-
-        return modifiedEquipment;
+        return renderer.renderCosmetic(context, targetData);
     }
 
-    public List<Equipment> buildCosmeticEquipment(UUID targetId, Player targetPlayer) {
+    /**
+     * Builds a map of equipment slots to the items that should be displayed for a
+     * target player,
+     * considering both cosmetics and visibility settings.
+     * Returns only slots that should show cosmetics (empty slots with cosmetics
+     * equipped).
+     */
+    public Map<EquipmentSlot, ItemStack> buildCosmeticEquipment(UUID viewerId, Player target) {
+        UUID targetId = target.getUniqueId();
+        PlayerData viewerData = playerCache.get(viewerId).orElse(null);
         PlayerData targetData = playerCache.get(targetId).orElse(null);
+
         if (targetData == null || !targetData.hasAnythingEquipped()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        List<Equipment> equipment = new ArrayList<>();
+        if (viewerData != null && !viewerData.getVisibility().canSee(viewerId, targetId)) {
+            return Collections.emptyMap();
+        }
 
-        for (CosmeticCategory category : CosmeticCategory.values()) {
-            targetData.getEquipped(category).ifPresent(cosmeticId -> {
-                registry.get(cosmeticId).ifPresent(cosmetic -> {
-                    com.github.retrooper.packetevents.protocol.item.ItemStack cosmeticItem = buildCosmeticItem(cosmetic);
-                    EquipmentSlot slot = toPacketSlot(category.getEquipmentSlot());
-                    equipment.add(new Equipment(slot, cosmeticItem));
+        RenderContext context = new RenderContext(viewerId, targetId, target.getEntityId());
+        Map<EquipmentSlot, ItemStack> equipment = new EnumMap<>(EquipmentSlot.class);
+
+        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS,
+                EquipmentSlot.FEET }) {
+            ItemStack realItem = target.getInventory().getItem(slot);
+
+            // Only show cosmetics if the slot is empty (no real armor)
+            if (realItem == null || realItem.getType().isAir()) {
+                getCosmeticForSlot(context, slot, targetData).ifPresent(cosmeticItem -> {
+                    equipment.put(slot, cosmeticItem);
                 });
-            });
+            }
         }
 
         return equipment;
     }
 
-    public List<Equipment> buildBaseEquipment(Player targetPlayer) {
-        List<Equipment> equipment = new ArrayList<>();
-
-        equipment.add(buildBaseEquipmentForSlot(targetPlayer, EquipmentSlot.HELMET));
-        equipment.add(buildBaseEquipmentForSlot(targetPlayer, EquipmentSlot.CHEST_PLATE));
-        equipment.add(buildBaseEquipmentForSlot(targetPlayer, EquipmentSlot.LEGGINGS));
-        equipment.add(buildBaseEquipmentForSlot(targetPlayer, EquipmentSlot.BOOTS));
-
-        return equipment;
-    }
-
-    public List<Equipment> buildFullEquipment(Player targetPlayer, UUID targetId) {
+    /**
+     * Builds a map of ALL equipment for a target player as other viewers should see
+     * them.
+     * Includes both real equipment and cosmetics where applicable.
+     */
+    public Map<EquipmentSlot, ItemStack> buildFullEquipment(UUID viewerId, Player target) {
+        UUID targetId = target.getUniqueId();
+        PlayerData viewerData = playerCache.get(viewerId).orElse(null);
         PlayerData targetData = playerCache.get(targetId).orElse(null);
 
-        List<Equipment> equipment = new ArrayList<>();
+        RenderContext context = new RenderContext(viewerId, targetId, target.getEntityId());
+        Map<EquipmentSlot, ItemStack> equipment = new EnumMap<>(EquipmentSlot.class);
 
-        equipment.add(buildEquipmentForSlot(targetPlayer, EquipmentSlot.HELMET, targetData, CosmeticCategory.HAT, CosmeticCategory.MASK));
-        equipment.add(buildEquipmentForSlot(targetPlayer, EquipmentSlot.CHEST_PLATE, targetData, CosmeticCategory.WINGS, CosmeticCategory.TOP));
-        equipment.add(buildEquipmentForSlot(targetPlayer, EquipmentSlot.LEGGINGS, targetData, CosmeticCategory.PANTS));
-        equipment.add(buildEquipmentForSlot(targetPlayer, EquipmentSlot.BOOTS, targetData, CosmeticCategory.SHOES));
+        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS,
+                EquipmentSlot.FEET }) {
+            ItemStack realItem = target.getInventory().getItem(slot);
 
-        return equipment;
-    }
-
-    private Equipment buildEquipmentForSlot(Player player, EquipmentSlot slot, PlayerData data, CosmeticCategory... categories) {
-        org.bukkit.inventory.EquipmentSlot bukkitSlot = toBukkitSlot(slot);
-        ItemStack realItem = player.getInventory().getItem(bukkitSlot);
-
-        if (data != null) {
-            for (CosmeticCategory category : categories) {
-                Optional<String> cosmeticId = data.getEquipped(category);
-                if (cosmeticId.isPresent()) {
-                    Optional<Cosmetic> cosmetic = registry.get(cosmeticId.get());
+            // Check if we should show a cosmetic in this slot
+            if ((realItem == null || realItem.getType().isAir()) && targetData != null
+                    && targetData.hasAnythingEquipped()) {
+                if (viewerData == null || viewerData.getVisibility().canSee(viewerId, targetId)) {
+                    Optional<ItemStack> cosmetic = getCosmeticForSlot(context, slot, targetData);
                     if (cosmetic.isPresent()) {
-                        if (category == CosmeticCategory.WINGS || category == CosmeticCategory.TOP) {
-                            if (realItem != null && realItem.getType() == org.bukkit.Material.ELYTRA) {
-                                break;
-                            }
-                        }
-                        return new Equipment(slot, buildCosmeticItem(cosmetic.get()));
+                        equipment.put(slot, cosmetic.get());
+                        continue;
                     }
                 }
             }
+
+            // Use the real item (or air if null)
+            equipment.put(slot, realItem != null ? realItem : new ItemStack(org.bukkit.Material.AIR));
         }
 
-        com.github.retrooper.packetevents.protocol.item.ItemStack packetItem =
-                realItem != null ? SpigotConversionUtil.fromBukkitItemStack(realItem)
-                        : com.github.retrooper.packetevents.protocol.item.ItemStack.EMPTY;
-
-        return new Equipment(slot, packetItem);
+        return equipment;
     }
 
-    private Equipment buildBaseEquipmentForSlot(Player player, EquipmentSlot slot) {
-        org.bukkit.inventory.EquipmentSlot bukkitSlot = toBukkitSlot(slot);
-        ItemStack realItem = player.getInventory().getItem(bukkitSlot);
-        com.github.retrooper.packetevents.protocol.item.ItemStack packetItem =
-                realItem != null ? SpigotConversionUtil.fromBukkitItemStack(realItem)
-                        : com.github.retrooper.packetevents.protocol.item.ItemStack.EMPTY;
-        return new Equipment(slot, packetItem);
-    }
-
-    private com.github.retrooper.packetevents.protocol.item.ItemStack buildCosmeticItem(Cosmetic cosmetic) {
-        ItemStack bukkitItem = ItemBuilder.of(cosmetic.baseMaterial())
-                .customModelData(cosmetic.customModelData())
-                .build();
-
-        return SpigotConversionUtil.fromBukkitItemStack(bukkitItem);
-    }
-
-    private EquipmentSlot toPacketSlot(org.bukkit.inventory.EquipmentSlot bukkitSlot) {
-        return switch (bukkitSlot) {
-            case HEAD -> EquipmentSlot.HELMET;
-            case CHEST -> EquipmentSlot.CHEST_PLATE;
-            case LEGS -> EquipmentSlot.LEGGINGS;
-            case FEET -> EquipmentSlot.BOOTS;
-            case HAND -> EquipmentSlot.MAIN_HAND;
-            case OFF_HAND -> EquipmentSlot.OFF_HAND;
-            default -> EquipmentSlot.HELMET;
-        };
-    }
-
-    private org.bukkit.inventory.EquipmentSlot toBukkitSlot(EquipmentSlot packetSlot) {
-        return switch (packetSlot) {
-            case HELMET -> org.bukkit.inventory.EquipmentSlot.HEAD;
-            case CHEST_PLATE -> org.bukkit.inventory.EquipmentSlot.CHEST;
-            case LEGGINGS -> org.bukkit.inventory.EquipmentSlot.LEGS;
-            case BOOTS -> org.bukkit.inventory.EquipmentSlot.FEET;
-            case MAIN_HAND -> org.bukkit.inventory.EquipmentSlot.HAND;
-            case OFF_HAND -> org.bukkit.inventory.EquipmentSlot.OFF_HAND;
-            default -> org.bukkit.inventory.EquipmentSlot.HEAD;
-        };
+    public PlayerDataCache getPlayerCache() {
+        return playerCache;
     }
 }

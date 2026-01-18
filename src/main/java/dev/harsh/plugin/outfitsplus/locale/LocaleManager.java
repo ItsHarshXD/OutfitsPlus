@@ -3,7 +3,8 @@ package dev.harsh.plugin.outfitsplus.locale;
 import dev.harsh.plugin.outfitsplus.OutfitsPlus;
 import dev.harsh.plugin.outfitsplus.config.ReloadManager;
 import dev.harsh.plugin.outfitsplus.cosmetic.CosmeticCategory;
-import org.bukkit.ChatColor;
+import dev.harsh.plugin.outfitsplus.util.ColorUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public final class LocaleManager implements ReloadManager.Reloadable {
 
@@ -88,16 +88,16 @@ public final class LocaleManager implements ReloadManager.Reloadable {
         }
     }
 
-    public String getMessage(CommandSender sender, MessageKey key) {
-        return getMessage(sender, key.getPath());
+    public String getRawMessage(CommandSender sender, MessageKey key) {
+        return getRawMessage(sender, key.getPath());
     }
 
-    public String getMessage(CommandSender sender, String path) {
+    public String getRawMessage(CommandSender sender, String path) {
         String locale = getLocale(sender);
-        return getMessage(locale, path);
+        return getRawMessage(locale, path);
     }
 
-    public String getMessage(String locale, String path) {
+    public String getRawMessage(String locale, String path) {
         YamlConfiguration config = locales.getOrDefault(locale, locales.get(defaultLocale));
         if (config == null) {
             return path;
@@ -111,44 +111,75 @@ public final class LocaleManager implements ReloadManager.Reloadable {
             }
         }
 
-        return message != null ? colorize(message) : path;
+        return message != null ? message : path;
+    }
+
+    public String getMessage(CommandSender sender, MessageKey key) {
+        return ColorUtil.process(getRawMessage(sender, key));
+    }
+
+    public String getMessage(CommandSender sender, String path) {
+        return ColorUtil.process(getRawMessage(sender, path));
+    }
+
+    public String getMessage(String locale, String path) {
+        return ColorUtil.process(getRawMessage(locale, path));
     }
 
     public String getMessage(CommandSender sender, MessageKey key, Object... replacements) {
-        return getMessage(sender, key.getPath(), replacements);
+        return ColorUtil.process(applyReplacements(getRawMessage(sender, key), replacements));
     }
 
     public String getMessage(CommandSender sender, String path, Object... replacements) {
-        String message = getMessage(sender, path);
-        return applyReplacements(message, replacements);
+        return ColorUtil.process(applyReplacements(getRawMessage(sender, path), replacements));
+    }
+
+    public Component getMessageComponent(CommandSender sender, MessageKey key) {
+        return ColorUtil.processToComponent(getRawMessage(sender, key));
+    }
+
+    public Component getMessageComponent(CommandSender sender, MessageKey key, Object... replacements) {
+        return ColorUtil.processToComponent(applyReplacements(getRawMessage(sender, key), replacements));
     }
 
     public String getMessageWithPrefix(CommandSender sender, MessageKey key) {
-        String prefix = getMessage(sender, MessageKey.PREFIX);
-        String message = getMessage(sender, key);
-        return prefix + message;
+        String prefix = getRawMessage(sender, MessageKey.PREFIX);
+        String message = getRawMessage(sender, key);
+        return ColorUtil.process(prefix + message);
     }
 
     public String getMessageWithPrefix(CommandSender sender, MessageKey key, Object... replacements) {
-        String prefix = getMessage(sender, MessageKey.PREFIX);
-        String message = getMessage(sender, key, replacements);
-        return prefix + message;
+        String prefix = getRawMessage(sender, MessageKey.PREFIX);
+        String message = applyReplacements(getRawMessage(sender, key), replacements);
+        return ColorUtil.process(prefix + message);
+    }
+
+    public Component getMessageWithPrefixComponent(CommandSender sender, MessageKey key) {
+        String prefix = getRawMessage(sender, MessageKey.PREFIX);
+        String message = getRawMessage(sender, key);
+        return ColorUtil.processToComponent(prefix + message);
+    }
+
+    public Component getMessageWithPrefixComponent(CommandSender sender, MessageKey key, Object... replacements) {
+        String prefix = getRawMessage(sender, MessageKey.PREFIX);
+        String message = applyReplacements(getRawMessage(sender, key), replacements);
+        return ColorUtil.processToComponent(prefix + message);
     }
 
     public void sendMessage(CommandSender sender, MessageKey key) {
-        sender.sendMessage(getMessageWithPrefix(sender, key));
+        sender.sendMessage(getMessageWithPrefixComponent(sender, key));
     }
 
     public void sendMessage(CommandSender sender, MessageKey key, Object... replacements) {
-        sender.sendMessage(getMessageWithPrefix(sender, key, replacements));
+        sender.sendMessage(getMessageWithPrefixComponent(sender, key, replacements));
     }
 
     public void sendRawMessage(CommandSender sender, MessageKey key) {
-        sender.sendMessage(getMessage(sender, key));
+        sender.sendMessage(getMessageComponent(sender, key));
     }
 
     public void sendRawMessage(CommandSender sender, MessageKey key, Object... replacements) {
-        sender.sendMessage(getMessage(sender, key, replacements));
+        sender.sendMessage(getMessageComponent(sender, key, replacements));
     }
 
     private String applyReplacements(String message, Object... replacements) {
@@ -232,7 +263,8 @@ public final class LocaleManager implements ReloadManager.Reloadable {
         return desc;
     }
 
-    private String resolveAlternateCosmeticMessage(CommandSender sender, String cosmeticId, String category, String field) {
+    private String resolveAlternateCosmeticMessage(CommandSender sender, String cosmeticId, String category,
+            String field) {
         return CosmeticCategory.fromString(category)
                 .map(CosmeticCategory::getConfigFolder)
                 .map(folder -> "cosmetic." + folder + "." + cosmeticId + "." + field)
@@ -241,9 +273,5 @@ public final class LocaleManager implements ReloadManager.Reloadable {
                     return alt.equals(altKey) ? null : alt;
                 })
                 .orElse(null);
-    }
-
-    private String colorize(String message) {
-        return ChatColor.translateAlternateColorCodes('&', message);
     }
 }
