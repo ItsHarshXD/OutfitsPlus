@@ -121,7 +121,6 @@ api.getAllCosmetics();
 ## Support
 
 - Issues: [GitHub Issues](https://github.com/itsharshxd/OutfitsPlus/issues)
-- Discord: Coming soon
 
 ## Little Note
 
