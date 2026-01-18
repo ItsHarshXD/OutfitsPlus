@@ -1,9 +1,10 @@
 name: OutfitsPlus
-version: '1.0.0'
+version: '${version}'
 main: dev.harsh.plugin.outfitsplus.OutfitsPlus
 api-version: '1.21'
 authors: [ Harsh ]
 description: Premium wearable cosmetics and outfit customization system for players, featuring hats, wings, clothing pieces, and visual accessories.
+
 softdepend:
   - ProtocolLib
   - ProtocolSupport
@@ -11,3 +12,95 @@ softdepend:
   - ViaBackwards
   - ViaRewind
   - Geyser-Spigot
+
+commands:
+  outfits:
+    description: Main command for OutfitsPlus cosmetics
+    usage: /<command> [subcommand]
+    aliases: [outfit, cosmetics, op]
+
+permissions:
+  outfitsplus.use:
+    description: Allows use of basic OutfitsPlus commands
+    default: true
+
+  outfitsplus.command.equip:
+    description: Allows equipping cosmetics
+    default: true
+
+  outfitsplus.command.unequip:
+    description: Allows unequipping cosmetics
+    default: true
+
+  outfitsplus.command.list:
+    description: Allows listing cosmetics
+    default: true
+
+  outfitsplus.command.toggle:
+    description: Allows toggling visibility settings
+    default: true
+
+  outfitsplus.command.locale:
+    description: Allows changing locale
+    default: true
+
+  outfitsplus.command.info:
+    description: Allows viewing cosmetic info
+    default: true
+
+  outfitsplus.admin:
+    description: Access to all admin commands
+    default: op
+    children:
+      outfitsplus.admin.reload: true
+      outfitsplus.admin.give: true
+      outfitsplus.admin.take: true
+      outfitsplus.admin.reset: true
+
+  outfitsplus.admin.reload:
+    description: Allows reloading configuration
+    default: op
+
+  outfitsplus.admin.give:
+    description: Allows giving cosmetics to players
+    default: op
+
+  outfitsplus.admin.take:
+    description: Allows taking cosmetics from players
+    default: op
+
+  outfitsplus.admin.reset:
+    description: Allows resetting player data
+    default: op
+
+  outfitsplus.cosmetic.*:
+    description: Access to all cosmetics
+    default: op
+
+  outfitsplus.cosmetic.hats.*:
+    description: Access to all hat cosmetics
+    default: false
+
+  outfitsplus.cosmetic.masks.*:
+    description: Access to all mask cosmetics
+    default: false
+
+  outfitsplus.cosmetic.wings.*:
+    description: Access to all wing cosmetics
+    default: false
+
+  outfitsplus.cosmetic.tops.*:
+    description: Access to all top cosmetics
+    default: false
+
+  outfitsplus.cosmetic.pants.*:
+    description: Access to all pants cosmetics
+    default: false
+
+  outfitsplus.cosmetic.shoes.*:
+    description: Access to all shoe cosmetics
+    default: false
+
+  outfitsplus.bypass.unlock:
+    description: Bypass unlock requirements (can use any cosmetic)
+    default: op

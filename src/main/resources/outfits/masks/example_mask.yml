@@ -1,0 +1,12 @@
+id: example_mask
+display-name: "cosmetic.masks.example_mask.name"
+description: "cosmetic.masks.example_mask.description"
+material: "LEATHER_HELMET"
+custom-model-data: 10002
+mask-type: "FULL"
+permission: null
+default-unlocked: false
+priority: 0
+metadata:
+  rarity: "common"
+  author: "OutfitsPlus"

@@ -1,0 +1,11 @@
+id: example_pants
+display-name: "cosmetic.pants.example_pants.name"
+description: "cosmetic.pants.example_pants.description"
+material: "LEATHER_LEGGINGS"
+custom-model-data: 10005
+permission: null
+default-unlocked: false
+priority: 0
+metadata:
+  rarity: "common"
+  author: "OutfitsPlus"

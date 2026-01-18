@@ -1,0 +1,11 @@
+id: example_top
+display-name: "cosmetic.tops.example_top.name"
+description: "cosmetic.tops.example_top.description"
+material: "LEATHER_CHESTPLATE"
+custom-model-data: 10004
+permission: null
+default-unlocked: false
+priority: 0
+metadata:
+  rarity: "common"
+  author: "OutfitsPlus"

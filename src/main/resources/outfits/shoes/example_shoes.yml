@@ -1,0 +1,11 @@
+id: example_shoes
+display-name: "cosmetic.shoes.example_shoes.name"
+description: "cosmetic.shoes.example_shoes.description"
+material: "LEATHER_BOOTS"
+custom-model-data: 10006
+permission: null
+default-unlocked: false
+priority: 0
+metadata:
+  rarity: "common"
+  author: "OutfitsPlus"

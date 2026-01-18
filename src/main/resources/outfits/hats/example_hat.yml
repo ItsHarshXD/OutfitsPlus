@@ -1,0 +1,11 @@
+id: example_hat
+display-name: "cosmetic.hats.example_hat.name"
+description: "cosmetic.hats.example_hat.description"
+material: "LEATHER_HELMET"
+custom-model-data: 10001
+permission: null
+default-unlocked: false
+priority: 0
+metadata:
+  rarity: "common"
+  author: "OutfitsPlus"

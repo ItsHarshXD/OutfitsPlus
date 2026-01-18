@@ -2,6 +2,8 @@
 **/build/
 !**/src/**/build/
 .**/idea/
+.**/vscode/
+.**/claude/
 
 # Ignore Gradle GUI config
 gradle-app.setting

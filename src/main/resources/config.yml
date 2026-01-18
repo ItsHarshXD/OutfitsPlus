@@ -1,0 +1,45 @@
+# OutfitsPlus Configuration
+# Version: 1.0.0
+
+# Storage configuration
+storage:
+  # Storage type: "yaml" or "mysql" (mysql support planned for future)
+  type: yaml
+
+  # MySQL settings (for future use)
+  mysql:
+    host: localhost
+    port: 3306
+    database: outfitsplus
+    username: root
+    password: ""
+    table-prefix: "op_"
+    pool-size: 10
+    connection-timeout: 5000
+
+# Default locale for new players
+default-locale: en
+
+# Auto-save interval in minutes (0 to disable)
+auto-save-interval: 5
+
+# Generate example cosmetics on first run
+generate-defaults: true
+
+# Debug mode (verbose logging)
+debug: false
+
+# Default visibility settings for new players
+defaults:
+  show-own-cosmetics: true
+  show-others-cosmetics: true
+
+# Integration settings
+integrations:
+  # ItemsAdder integration (future)
+  itemsadder:
+    enabled: false
+
+  # Nexo integration (future)
+  nexo:
+    enabled: false

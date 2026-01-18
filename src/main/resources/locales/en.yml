@@ -1,0 +1,112 @@
+# OutfitsPlus English Locale
+# Locale code: en
+
+# Plugin prefix for all messages
+prefix: "&8[&6OutfitsPlus&8] "
+
+# General messages
+messages:
+  reload-success: "&aConfiguration reloaded successfully!"
+  reload-failed: "&cFailed to reload configuration: {error}"
+  no-permission: "&cYou don't have permission to do that."
+  player-not-found: "&cPlayer '{player}' not found."
+  player-only: "&cThis command can only be used by players."
+  invalid-category: "&cInvalid category '{category}'. Valid: {valid}"
+  invalid-cosmetic: "&cCosmetic '{cosmetic}' not found in category '{category}'."
+  invalid-usage: "&cUsage: {usage}"
+
+# Command messages
+commands:
+  equip:
+    success: "&aEquipped &e{cosmetic}&a in slot &e{category}&a!"
+    already-equipped: "&eYou already have &6{cosmetic}&e equipped."
+    not-unlocked: "&cYou haven't unlocked &e{cosmetic}&c yet."
+    no-permission: "&cYou don't have permission to use this cosmetic."
+
+  unequip:
+    success: "&aUnequipped cosmetic from &e{category}&a slot."
+    success-all: "&aUnequipped all cosmetics."
+    nothing-equipped: "&eNo cosmetic equipped in &6{category}&e slot."
+
+  list:
+    header: "&6===== Your Cosmetics ({category}) ====="
+    header-all: "&6===== All Your Cosmetics ====="
+    item-unlocked: "&a+ &f{name} &7- {description}"
+    item-locked: "&c- &8{name} &7- {description}"
+    item-equipped: "&a+ &b[EQUIPPED] &f{name}"
+    empty: "&7No cosmetics available in this category."
+    footer: "&6============================="
+
+  toggle:
+    own-on: "&aYou can now see your own cosmetics."
+    own-off: "&cYour own cosmetics are now hidden."
+    others-on: "&aYou can now see other players' cosmetics."
+    others-off: "&cOther players' cosmetics are now hidden."
+    invalid: "&cInvalid toggle option. Use: own, others"
+
+  locale:
+    changed: "&aLanguage changed to &e{locale}&a."
+    invalid: "&cInvalid locale '{locale}'. Available: {available}"
+    current: "&eCurrent language: &6{locale}"
+
+  info:
+    header: "&6===== Cosmetic Info ====="
+    name: "&eName: &f{name}"
+    category: "&eCategory: &f{category}"
+    description: "&eDescription: &f{description}"
+    unlocked: "&eUnlocked: {status}"
+    equipped: "&eEquipped: {status}"
+    permission: "&ePermission: &f{permission}"
+    status-yes: "&aYes"
+    status-no: "&cNo"
+
+# Admin command messages
+admin:
+  give:
+    success: "&aGave cosmetic &e{cosmetic}&a to &e{player}&a."
+    already-has: "&e{player}&e already has &6{cosmetic}&e unlocked."
+
+  take:
+    success: "&aRemoved cosmetic &e{cosmetic}&a from &e{player}&a."
+    not-unlocked: "&e{player}&e doesn't have &6{cosmetic}&e unlocked."
+
+  reset:
+    success: "&aReset all cosmetic data for &e{player}&a."
+    confirm: "&cType the command again within 10 seconds to confirm reset."
+
+# Cosmetic names and descriptions (examples)
+cosmetic:
+  hats:
+    example_hat:
+      name: "Example Hat"
+      description: "A simple example hat cosmetic."
+
+  masks:
+    example_mask:
+      name: "Example Mask"
+      description: "A simple example mask cosmetic."
+
+  wings:
+    example_wings:
+      name: "Example Wings"
+      description: "A simple example wings cosmetic."
+
+  tops:
+    example_top:
+      name: "Example Top"
+      description: "A simple example top cosmetic."
+
+  pants:
+    example_pants:
+      name: "Example Pants"
+      description: "A simple example pants cosmetic."
+
+  shoes:
+    example_shoes:
+      name: "Example Shoes"
+      description: "A simple example shoes cosmetic."
+
+# Help messages
+help:
+  header: "&6===== OutfitsPlus Help ====="
+  footer: "&6=========================="

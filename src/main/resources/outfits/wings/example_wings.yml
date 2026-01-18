@@ -1,0 +1,11 @@
+id: example_wings
+display-name: "cosmetic.wings.example_wings.name"
+description: "cosmetic.wings.example_wings.description"
+material: "ELYTRA"
+custom-model-data: 10003
+permission: null
+default-unlocked: false
+priority: 0
+metadata:
+  rarity: "rare"
+  author: "OutfitsPlus"
